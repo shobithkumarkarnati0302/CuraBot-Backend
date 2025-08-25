@@ -51,7 +51,7 @@ const corsOptions = {
   origin: [
     'http://localhost:5173', 
     'http://127.0.0.1:5173',
-    'https://curabot-frontend.vercel.app', // Replace with your actual Vercel URL
+    'https://curabot-project.vercel.app', // Your actual Vercel URL
     /\.vercel\.app$/ // Allow all Vercel preview deployments
   ],
   credentials: true,
