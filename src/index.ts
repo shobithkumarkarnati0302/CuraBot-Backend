@@ -46,9 +46,14 @@ const __dirname = dirname(__filename);
 const app = express();
 const port = parseInt(process.env.PORT || '5001', 10);
 
-// CORS Configuration for local development
+// CORS Configuration for both local and production
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  origin: [
+    'http://localhost:5173', 
+    'http://127.0.0.1:5173',
+    'https://curabot-frontend.vercel.app', // Replace with your actual Vercel URL
+    /\.vercel\.app$/ // Allow all Vercel preview deployments
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
