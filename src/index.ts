@@ -10,6 +10,8 @@ import labRecordRoutes from './routes/labRecords.js';
 import appointmentRoutes from './routes/appointments.js';
 import doctorRoutes from './routes/doctors.js';
 import patientRoutes from './routes/patients.js';
+import reportRoutes from './routes/reportRoutes.js';
+import chatRoutes from './routes/chatRoutes.js';
 import { User } from './models/User.js'; 
 
 
@@ -44,7 +46,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-const port = parseInt(process.env.PORT || '5001', 10);
+const port = parseInt(process.env.PORT || '5000', 10);
+const VERBOSE_STARTUP = process.env.VERBOSE_STARTUP === 'true';
 
 // CORS Configuration for both local and production
 const corsOptions = {
@@ -55,7 +58,7 @@ const corsOptions = {
     /\.vercel\.app$/ // Allow all Vercel preview deployments
   ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
 
@@ -73,6 +76,8 @@ app.use('/api/lab-records', labRecordRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/patients', patientRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Basic route
 app.get('/', (req, res) => {
@@ -86,7 +91,9 @@ console.log('Attempting to connect to MongoDB:', MONGODB_URI.includes('mongodb+s
 mongoose.connect(MONGODB_URI)
   .then(async () => {
     console.log('✅ Successfully connected to MongoDB');
-    console.log('Database name:', mongoose.connection.db?.databaseName || 'Unknown');
+    if (VERBOSE_STARTUP) {
+      console.log('Database name:', mongoose.connection.db?.databaseName || 'Unknown');
+    }
     
     // Seed admin user
     await seedAdmin();
@@ -107,16 +114,18 @@ mongoose.connect(MONGODB_URI)
     // Start server
     app.listen(port, '0.0.0.0', () => {
       console.log(`🚀 Server is running on http://localhost:${port}`);
-      console.log('Available routes:');
-      console.log('  POST /api/auth/register - User registration');
-      console.log('  POST /api/auth/login - User login');
-      console.log('  GET /api/auth/me - Get current user');
-      console.log('  GET /api/doctors - Get all doctors');
-      console.log('  POST /api/doctors - Create doctor');
-      console.log('  GET /api/patients - Get all patients');
-      console.log('  POST /api/patients - Create patient');
-      console.log('  GET /api/appointments - Get appointments');
-      console.log('  POST /api/appointments - Create appointment');
+      if (VERBOSE_STARTUP) {
+        console.log('Available routes:');
+        console.log('  POST /api/auth/register - User registration');
+        console.log('  POST /api/auth/login - User login');
+        console.log('  GET /api/auth/me - Get current user');
+        console.log('  GET /api/doctors - Get all doctors');
+        console.log('  POST /api/doctors - Create doctor');
+        console.log('  GET /api/patients - Get all patients');
+        console.log('  POST /api/patients - Create patient');
+        console.log('  GET /api/appointments - Get appointments');
+        console.log('  POST /api/appointments - Create appointment');
+      }
     });
   })
   .catch((error) => {
