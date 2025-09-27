@@ -138,6 +138,63 @@ export const getDoctorReports = async (req: AuthRequest, res: Response) => {
   }
 };
 
+// Get all reports (Admin only)
+export const getAllReports = async (req: AuthRequest, res: Response) => {
+  try {
+    console.log('=== GET ALL REPORTS REQUEST ===');
+    console.log('User:', req.user);
+    console.log('User role:', req.user?.role);
+    
+    // First, let's check if there are any reports at all
+    const reportCount = await Report.countDocuments();
+    console.log('Total reports in database:', reportCount);
+    
+    if (reportCount === 0) {
+      console.log('No reports found in database');
+      return res.json([]);
+    }
+    
+    const reports = await Report.find({})
+      .populate('patientId', 'name email')
+      .populate('doctorId', 'name specialization')
+      .sort({ createdAt: -1 });
+
+    console.log('Found reports:', reports.length);
+    
+    // Simple transformation without complex population logic
+    const transformedReports = reports.map(report => {
+      const patientData = report.patientId as any;
+      const doctorData = report.doctorId as any;
+      
+      return {
+        _id: report._id,
+        appointmentId: report.appointmentId,
+        patientId: patientData?._id || report.patientId,
+        doctorId: doctorData?._id || report.doctorId,
+        patientName: patientData?.name || 'Unknown Patient',
+        doctorName: doctorData?.name || 'Unknown Doctor',
+        diagnosis: report.diagnosis || '',
+        prescription: report.prescription || '',
+        recommendations: report.recommendations || '',
+        notes: report.notes || '',
+        createdAt: report.createdAt,
+        updatedAt: report.updatedAt
+      };
+    });
+
+    console.log('Transformed reports:', transformedReports);
+    res.json(transformedReports);
+  } catch (error) {
+    console.error('Error fetching all reports:', error);
+    console.error('Error stack:', (error as any).stack);
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: (error as any).message,
+      stack: process.env.NODE_ENV === 'development' ? (error as any).stack : undefined
+    });
+  }
+};
+
 // Get a specific report by ID
 export const getReportById = async (req: AuthRequest, res: Response) => {
   try {
