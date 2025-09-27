@@ -10,7 +10,6 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
-.env.production
 
 # Build output
 dist/
@@ -120,3 +119,13 @@ coverage/
 
 # PM2 process file
 ecosystem.config.js
+
+# Deployment files
+vercel.json
+.vercel/
+render.yaml
+Procfile
+
+# Miscellaneous
+*.tsbuildinfo
+.DS_Store
