@@ -57,9 +57,20 @@ export const createReport = async (req: AuthRequest, res: Response) => {
     console.log('Doctor authorization successful');
 
     // Check if report already exists for this appointment
+    console.log('Checking for existing report with appointmentId:', appointmentId);
     const existingReport = await Report.findOne({ appointmentId });
+    console.log('Existing report found:', existingReport ? 'YES' : 'NO');
+    
     if (existingReport) {
-      return res.status(400).json({ message: 'Report already exists for this appointment' });
+      console.log('Existing report details:', {
+        reportId: existingReport._id,
+        appointmentId: existingReport.appointmentId,
+        createdAt: existingReport.createdAt
+      });
+      return res.status(400).json({ 
+        message: 'Report already exists for this appointment',
+        existingReportId: existingReport._id
+      });
     }
 
     console.log('Creating report with data:', {
